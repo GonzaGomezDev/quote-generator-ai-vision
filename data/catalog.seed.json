@@ -1,0 +1,167 @@
+[
+  {
+    "id": "SKU-001",
+    "name": "Zapatillas Air Zoom Pro",
+    "category": "calzado",
+    "brand": "Nike",
+    "color": "blanco",
+    "unit_price": 129.99,
+    "currency": "USD",
+    "weight_kg": 0.4,
+    "attributes": {"rango_talle": "US 6-14", "material": "malla"}
+  },
+  {
+    "id": "SKU-002",
+    "name": "Zapatillas Classic Leather",
+    "category": "calzado",
+    "brand": "Adidas",
+    "color": "blanco",
+    "unit_price": 89.99,
+    "currency": "USD",
+    "weight_kg": 0.38,
+    "attributes": {"rango_talle": "US 5-13", "material": "cuero"}
+  },
+  {
+    "id": "SKU-003",
+    "name": "Zapatillas Urban Runner",
+    "category": "calzado",
+    "brand": "New Balance",
+    "color": "gris",
+    "unit_price": 99.99,
+    "currency": "USD",
+    "weight_kg": 0.42,
+    "attributes": {"rango_talle": "US 6-14", "material": "sintético"}
+  },
+  {
+    "id": "SKU-004",
+    "name": "Cartera Tote de Cuero",
+    "category": "bolsos",
+    "brand": "Coach",
+    "color": "camel",
+    "unit_price": 299.00,
+    "currency": "USD",
+    "weight_kg": 0.9,
+    "attributes": {"capacidad_litros": 18, "material": "cuero genuino"}
+  },
+  {
+    "id": "SKU-005",
+    "name": "Bolso Bandolera de Nylon",
+    "category": "bolsos",
+    "brand": "Prada",
+    "color": "negro",
+    "unit_price": 850.00,
+    "currency": "USD",
+    "weight_kg": 0.5,
+    "attributes": {"capacidad_litros": 5, "material": "nylon"}
+  },
+  {
+    "id": "SKU-006",
+    "name": "Mochila de Lona",
+    "category": "bolsos",
+    "brand": "Herschel",
+    "color": "azul marino",
+    "unit_price": 74.99,
+    "currency": "USD",
+    "weight_kg": 0.7,
+    "attributes": {"capacidad_litros": 22, "material": "lona"}
+  },
+  {
+    "id": "SKU-007",
+    "name": "Auriculares Inalámbricos con Cancelación de Ruido",
+    "category": "electrónica",
+    "brand": "Sony",
+    "color": "negro",
+    "unit_price": 349.99,
+    "currency": "USD",
+    "weight_kg": 0.25,
+    "attributes": {"bateria_horas": 30, "conectividad": "Bluetooth 5.2"}
+  },
+  {
+    "id": "SKU-008",
+    "name": "Auriculares Inalámbricos In-Ear",
+    "category": "electrónica",
+    "brand": "Apple",
+    "color": "blanco",
+    "unit_price": 249.00,
+    "currency": "USD",
+    "weight_kg": 0.05,
+    "attributes": {"bateria_horas": 6, "conectividad": "Bluetooth 5.3"}
+  },
+  {
+    "id": "SKU-009",
+    "name": "Reloj Inteligente",
+    "category": "electrónica",
+    "brand": "Apple",
+    "color": "plateado",
+    "unit_price": 399.00,
+    "currency": "USD",
+    "weight_kg": 0.05,
+    "attributes": {"pantalla": "OLED 45mm", "resistencia_agua": "IP68"}
+  },
+  {
+    "id": "SKU-010",
+    "name": "Soporte para Laptop Delgado",
+    "category": "accesorios",
+    "brand": "Twelve South",
+    "color": "plateado",
+    "unit_price": 59.99,
+    "currency": "USD",
+    "weight_kg": 0.35,
+    "attributes": {"material": "aluminio", "ajustable": true}
+  },
+  {
+    "id": "SKU-011",
+    "name": "Teclado Mecánico",
+    "category": "electrónica",
+    "brand": "Keychron",
+    "color": "gris",
+    "unit_price": 119.00,
+    "currency": "USD",
+    "weight_kg": 0.85,
+    "attributes": {"switches": "Brown", "layout": "TKL"}
+  },
+  {
+    "id": "SKU-012",
+    "name": "Anteojos de Sol Aviador",
+    "category": "accesorios",
+    "brand": "Ray-Ban",
+    "color": "dorado",
+    "unit_price": 179.00,
+    "currency": "USD",
+    "weight_kg": 0.03,
+    "attributes": {"lente": "polarizado", "armazón": "metal"}
+  },
+  {
+    "id": "SKU-013",
+    "name": "Billetera Slim de Cuero",
+    "category": "accesorios",
+    "brand": "Bellroy",
+    "color": "marrón",
+    "unit_price": 89.00,
+    "currency": "USD",
+    "weight_kg": 0.06,
+    "attributes": {"ranuras_tarjeta": 8, "material": "cuero curtido vegetal"}
+  },
+  {
+    "id": "SKU-014",
+    "name": "Botella Térmica",
+    "category": "lifestyle",
+    "brand": "Hydro Flask",
+    "color": "negro",
+    "unit_price": 44.95,
+    "currency": "USD",
+    "weight_kg": 0.33,
+    "attributes": {"capacidad_ml": 710, "horas_aislamiento": 24}
+  },
+  {
+    "id": "SKU-015",
+    "name": "Gorra Running",
+    "category": "indumentaria",
+    "brand": "Nike",
+    "color": "negro",
+    "unit_price": 29.99,
+    "currency": "USD",
+    "weight_kg": 0.08,
+    "attributes": {"material": "dri-fit", "ajustable": true}
+  }
+]
