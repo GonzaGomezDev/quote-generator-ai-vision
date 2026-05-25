@@ -9,7 +9,7 @@
  reading /api/quotes.
  7. Live feed — useEventStream hook + EventCard + LatencyBars. Drive from CLI script feeding fake events.
  8. WhatsApp via Twilio — webhook + reply; verify with ngrok + Twilio Sandbox join code.
- 9. Instagram via Meta — webhook + reply; requires IG Business account linked to a Facebook Page + app review-mode tokens.
+ 9. Telegram via Bot API — webhook + reply; create bot with @BotFather, register setWebhook with ngrok URL.
  10. Polish — filters, empty/error states, README walkthrough.
 
  Each step is a clean YouTube checkpoint.

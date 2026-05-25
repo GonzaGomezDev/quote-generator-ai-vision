@@ -25,11 +25,11 @@ app.add_middleware(
 
 # ── Routers (imported after app creation to avoid circular imports) ─────────
 from app.channels.whatsapp_twilio import router as wa_router        # noqa: E402
-from app.channels.instagram_meta import router as ig_router         # noqa: E402
+from app.channels.telegram import router as tg_router               # noqa: E402
 from app.web.routes import router as web_router                     # noqa: E402
 
 app.include_router(wa_router)
-app.include_router(ig_router)
+app.include_router(tg_router)
 app.include_router(web_router)
 
 

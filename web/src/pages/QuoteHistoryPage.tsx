@@ -33,7 +33,7 @@ export default function QuoteHistoryPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {(["all", "whatsapp", "instagram"] as ChannelFilter[]).map((v) => (
+        {(["all", "whatsapp", "telegram"] as ChannelFilter[]).map((v) => (
           <button
             key={v}
             onClick={() => setChannel(v)}

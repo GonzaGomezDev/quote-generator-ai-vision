@@ -6,7 +6,7 @@ from typing import Any
 @dataclass
 class Message:
     id: str
-    channel: str          # "whatsapp" | "instagram"
+    channel: str          # "whatsapp" | "telegram"
     sender: str
     media_url: str
     received_at: datetime

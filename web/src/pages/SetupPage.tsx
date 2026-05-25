@@ -41,9 +41,9 @@ export default function SetupPage() {
       description: "Pegalo en Twilio Sandbox → When a message comes in",
     },
     {
-      label: "Instagram (Meta)",
-      url: `${baseUrl}/webhook/instagram`,
-      description: "Pegalo en Meta App → Webhooks → messages",
+      label: "Telegram (Bot)",
+      url: `${baseUrl}/webhook/telegram`,
+      description: "Registralo con setWebhook en la API de Telegram",
     },
   ];
 
@@ -52,10 +52,8 @@ export default function SetupPage() {
     { key: "TWILIO_ACCOUNT_SID", hint: "console.twilio.com → Account Info" },
     { key: "TWILIO_AUTH_TOKEN", hint: "console.twilio.com → Account Info" },
     { key: "TWILIO_WHATSAPP_FROM", hint: "ej. whatsapp:+14155238886" },
-    { key: "META_APP_SECRET", hint: "developers.facebook.com → App → App Secret" },
-    { key: "META_VERIFY_TOKEN", hint: "Cualquier string aleatorio que elijas" },
-    { key: "META_PAGE_ACCESS_TOKEN", hint: "developers.facebook.com → App → Access Tokens" },
-    { key: "META_IG_USER_ID", hint: "ID numérico de tu cuenta de Instagram Business" },
+    { key: "TELEGRAM_BOT_TOKEN", hint: "Obtenelo con @BotFather en Telegram → /newbot" },
+    { key: "TELEGRAM_WEBHOOK_SECRET", hint: "String aleatorio para validar llamadas de Telegram" },
     { key: "OPERATOR_PASSWORD", hint: "Tu contraseña para el dashboard" },
     { key: "JWT_SECRET", hint: "String largo y aleatorio (openssl rand -hex 32)" },
   ];

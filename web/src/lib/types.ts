@@ -29,7 +29,7 @@ export interface Latencies {
 
 export interface PipelineEvent {
   message_id: string;
-  channel: "whatsapp" | "instagram";
+  channel: "whatsapp" | "telegram";
   sender: string;
   media_url: string;
   extraction: Extraction;
@@ -38,5 +38,5 @@ export interface PipelineEvent {
   received_at: string;
 }
 
-export type ChannelFilter = "all" | "whatsapp" | "instagram";
+export type ChannelFilter = "all" | "whatsapp" | "telegram";
 export type MatchFilter = "all" | "matched" | "unmatched";

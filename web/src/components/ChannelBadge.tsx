@@ -1,15 +1,15 @@
 interface Props {
-  channel: "whatsapp" | "instagram";
+  channel: "whatsapp" | "telegram";
 }
 
 const styles: Record<string, string> = {
   whatsapp: "bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400",
-  instagram: "bg-pink-50 text-pink-700 dark:bg-pink-500/10 dark:text-pink-400",
+  telegram: "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
 };
 
 const icons: Record<string, string> = {
   whatsapp: "💬",
-  instagram: "📸",
+  telegram: "✈️",
 };
 
 export function ChannelBadge({ channel }: Props) {

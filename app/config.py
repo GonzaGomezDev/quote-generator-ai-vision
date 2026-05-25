@@ -10,10 +10,8 @@ class Settings(BaseSettings):
     twilio_auth_token: str = ""
     twilio_whatsapp_from: str = "whatsapp:+14155238886"
 
-    meta_app_secret: str = ""
-    meta_verify_token: str = ""
-    meta_page_access_token: str = ""
-    meta_ig_user_id: str = ""
+    telegram_bot_token: str = ""
+    telegram_webhook_secret: str = ""
 
     operator_password: str = ""
     jwt_secret: str = ""

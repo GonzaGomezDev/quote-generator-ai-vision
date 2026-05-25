@@ -36,7 +36,7 @@ export function Filters({ channel, match, onChannel, onMatch, total }: Props) {
     <div className="flex items-center gap-3 flex-wrap">
       <span className="text-sm text-gray-500 dark:text-gray-400">{total} eventos</span>
       <div className="flex gap-1">
-        {([["all", "todos"], ["whatsapp", "WhatsApp"], ["instagram", "Instagram"]] as [ChannelFilter, string][]).map(([v, label]) => (
+        {([["all", "todos"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"]] as [ChannelFilter, string][]).map(([v, label]) => (
           <Pill key={v} active={channel === v} onClick={() => onChannel(v)}>
             {label}
           </Pill>

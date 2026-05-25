@@ -86,7 +86,7 @@ export default function DashboardPage() {
               Esperando imágenes entrantes…
             </p>
             <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-              Enviá una foto de producto por WhatsApp o Instagram.
+              Enviá una foto de producto por WhatsApp o Telegram.
             </p>
           </div>
         ) : (
