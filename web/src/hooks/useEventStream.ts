@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import type { PipelineEvent } from "../lib/types";
+import type { AgentEvent } from "../lib/types";
 
-export function useEventStream(onEvent: (e: PipelineEvent) => void) {
+export function useEventStream(onEvent: (e: AgentEvent) => void) {
   const { token } = useAuth();
   const esRef = useRef<EventSource | null>(null);
 
@@ -18,7 +18,7 @@ export function useEventStream(onEvent: (e: PipelineEvent) => void) {
 
       es.onmessage = (e) => {
         try {
-          const payload: PipelineEvent = JSON.parse(e.data);
+          const payload: AgentEvent = JSON.parse(e.data);
           onEvent(payload);
         } catch {
           // ignore malformed frames

@@ -9,9 +9,7 @@ class Settings(BaseSettings):
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_whatsapp_from: str = "whatsapp:+14155238886"
-
-    telegram_bot_token: str = ""
-    telegram_webhook_secret: str = ""
+    twilio_messenger_from: str = ""
 
     operator_password: str = ""
     jwt_secret: str = ""

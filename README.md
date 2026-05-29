@@ -1,6 +1,6 @@
 # Quote Generator AI Vision
 
-Real-time computer vision quote generation across WhatsApp and Telegram.
+Real-time computer vision quote generation across WhatsApp and Facebook Messenger.
 
 > Customer sends a product photo → Claude Sonnet 4.6 extracts SKU details → catalog match → dynamic quote → instant reply → live operator dashboard.
 
@@ -10,10 +10,10 @@ Real-time computer vision quote generation across WhatsApp and Telegram.
 |---|---|
 | Backend | Python 3.12 + FastAPI (async) |
 | Vision | Claude Sonnet 4.6 (Anthropic API) |
-| WhatsApp | Twilio Sandbox |
-| Telegram | Bot API |
-| Auth | Clerk (`@clerk/clerk-react`) |
-| Frontend | Vite + React + TypeScript + Tailwind |
+| WhatsApp | Twilio Programmable Messaging |
+| Messenger | Twilio Programmable Messaging (Facebook Messenger) |
+| Auth | Operator password → FastAPI JWT |
+| Frontend | Vite + React + TypeScript + Tailwind (TailAdmin) |
 | Storage | SQLite via `aiosqlite` |
 
 ## Quick start
@@ -31,7 +31,6 @@ uvicorn app.main:app --reload
 
 ```bash
 cd web
-cp .env.example .env   # set VITE_CLERK_PUBLISHABLE_KEY
 npm install
 npm run dev
 # → http://localhost:5173
@@ -44,14 +43,16 @@ ngrok http 8000
 ```
 
 Set the HTTPS URL in:
-- Twilio Sandbox → "When a message comes in": `https://<ngrok>/webhook/whatsapp`
-- Telegram → register webhook: `curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" -d "url=https://<ngrok>/webhook/telegram"`
+- Twilio WhatsApp Sandbox → "When a message comes in": `https://<ngrok>/webhook/whatsapp`
+- Twilio Messenger Sender → "When a message comes in": `https://<ngrok>/webhook/messenger`
 
 ### 4. Smoke test (no phone needed)
 
 ```bash
 python scripts/send_test_image.py path/to/product.jpg
 ```
+
+---
 
 ## WhatsApp setup (Twilio Sandbox)
 
@@ -68,13 +69,11 @@ python scripts/send_test_image.py path/to/product.jpg
 
 ### Step 3 — Collect your credentials
 
-From the Twilio Console home page copy:
-
 | Variable | Where to find it |
 |---|---|
-| `TWILIO_ACCOUNT_SID` | Dashboard → Account Info |
-| `TWILIO_AUTH_TOKEN` | Dashboard → Account Info (click to reveal) |
-| `TWILIO_WHATSAPP_FROM` | The sandbox number in the format `whatsapp:+14155238886` |
+| `TWILIO_ACCOUNT_SID` | Console home → Account Info |
+| `TWILIO_AUTH_TOKEN` | Console home → Account Info (click to reveal) |
+| `TWILIO_WHATSAPP_FROM` | The sandbox number in format `whatsapp:+14155238886` |
 
 Paste these into your `.env` file.
 
@@ -89,38 +88,56 @@ Paste these into your `.env` file.
 
 ### Step 5 — Test
 
-Send any WhatsApp message (or a product photo) from the joined number and confirm a reply appears in your terminal logs.
+Send a product photo from the joined WhatsApp number and confirm a quote reply appears.
 
 ---
 
-## Telegram setup (Bot API)
+## Facebook Messenger setup (Twilio)
 
-### Step 1 — Create a bot
+Twilio acts as the bridge between your Facebook Page and the app. No Meta Developer App approval is required for this flow — only a Facebook Page and a Twilio account.
 
-1. Open Telegram and message [@BotFather](https://t.me/botfather).
-2. Send `/newbot`, choose a name and username (must end in `bot`).
-3. Copy the **token** BotFather gives you.
+### Step 1 — Create or use a Facebook Page
 
-### Step 2 — Collect your credentials
+You need a Facebook Page (not a personal profile) to receive Messenger messages.
+
+1. Go to [facebook.com/pages/create](https://facebook.com/pages/create) if you don't have one.
+2. Note your **Page ID** — visible in **Page Settings → About → Page transparency** or in the page URL for older pages.
+
+### Step 2 — Connect the Page to Twilio
+
+1. In the Twilio Console, go to **Messaging → Senders → Facebook Messenger**.
+2. Click **Connect a Facebook Page**.
+3. Log in with the Facebook account that manages the Page and grant Twilio the requested permissions.
+4. Select the Page you want to use and confirm. Twilio will display a **Messenger Sender** entry once connected.
+5. Copy the sender identifier — it appears in format `messenger:<Facebook_Page_ID>`.
+
+### Step 3 — Collect your credentials
 
 | Variable | Where to find it |
 |---|---|
-| `TELEGRAM_BOT_TOKEN` | Token from BotFather (step 1) |
-| `TELEGRAM_WEBHOOK_SECRET` | Any random string you invent — sent as `X-Telegram-Bot-Api-Secret-Token` header |
+| `TWILIO_ACCOUNT_SID` | Console home → Account Info |
+| `TWILIO_AUTH_TOKEN` | Console home → Account Info (click to reveal) |
+| `TWILIO_MESSENGER_FROM` | The sender from step 2, e.g. `messenger:123456789012345` |
 
 Paste these into your `.env` file.
 
-### Step 3 — Register the webhook
+### Step 4 — Point the Messenger Sender at your webhook
 
-```bash
-curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
-  -d "url=https://<your-ngrok-subdomain>.ngrok-free.app/webhook/telegram" \
-  -d "secret_token=<TELEGRAM_WEBHOOK_SECRET>"
-```
+1. In **Messaging → Senders → Facebook Messenger**, click the sender you just connected.
+2. Under **Messaging Configuration**, set **"A message comes in"** to:
+   ```
+   https://<your-ngrok-subdomain>.ngrok-free.app/webhook/messenger
+   ```
+   Method: **HTTP POST**
+3. Save. Twilio will verify the URL with a test request.
 
-### Step 4 — Test
+### Step 5 — Test
 
-Send a photo to your bot from any Telegram account. Confirm the message appears in your terminal logs and a quote reply is sent back.
+1. Open Facebook and go to your Page.
+2. Click **Send Message** and send a product photo via Messenger.
+3. Confirm the quote reply arrives and the event appears in the operator dashboard.
+
+> **Note:** Users must initiate the conversation first — Pages cannot cold-message users via the Messenger API. For testing, simply send a message from your own Facebook account to the Page.
 
 ---
 
@@ -141,9 +158,28 @@ Shipping: $5.99
 ## Architecture
 
 ```
-WhatsApp/Telegram → /webhook/* → BackgroundTask
+WhatsApp/Messenger → /webhook/* → BackgroundTask
   → download image → Claude vision → catalog match → quote → channel reply
   → SSE broadcast → React dashboard (live feed)
+```
+
+Both channels go through the same Twilio Programmable Messaging API. The webhook payload format is identical — `From`, `To`, `MediaUrl0` — only the sender prefix differs (`whatsapp:` vs `messenger:`).
+
+## Environment variables
+
+```env
+ANTHROPIC_API_KEY=
+
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+TWILIO_MESSENGER_FROM=messenger:<your-page-id>
+
+OPERATOR_PASSWORD=
+JWT_SECRET=
+
+PUBLIC_BASE_URL=https://<ngrok>.ngrok-free.app
+ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 ## Deployment notes

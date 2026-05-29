@@ -47,13 +47,16 @@ class Quote:
 
 
 @dataclass
-class PipelineEvent:
-    """Emitted after every pipeline run and forwarded via SSE."""
+class AgentEvent:
+    """Emitted after every agent turn and forwarded via SSE."""
     message_id: str
     channel: str
     sender: str
-    media_url: str
-    extraction: dict[str, Any]
-    quote: dict[str, Any] | None
-    latencies: dict[str, int]   # stage → ms
+    text: str | None              # inbound text (None for image-only messages)
+    media_url: str | None         # inbound image URL if present
+    reply_text: str               # final assistant reply sent to the customer
+    extraction: dict[str, Any]    # last analyze_product_image result (empty if not called)
+    quote: dict[str, Any] | None  # last build_quote result if a quote was generated
+    tool_calls: list[dict]        # [{name, input, result_summary}] for all tool invocations
+    latencies: dict[str, int]     # stage → ms (agent_ms + per-tool ms)
     received_at: str

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import type { ChannelFilter, MatchFilter, PipelineEvent } from "../lib/types";
+import type { ChannelFilter, MatchFilter, AgentEvent } from "../lib/types";
 import { useApi } from "../hooks/useApi";
 import { ChannelBadge } from "../components/ChannelBadge";
 
 export default function QuoteHistoryPage() {
-  const [events, setEvents] = useState<PipelineEvent[]>([]);
+  const [events, setEvents] = useState<AgentEvent[]>([]);
   const [channel, setChannel] = useState<ChannelFilter>("all");
   const [match, setMatch] = useState<MatchFilter>("all");
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,7 @@ export default function QuoteHistoryPage() {
 
   useEffect(() => {
     apiFetch("/api/quotes?limit=200")
-      .then((data: PipelineEvent[]) => setEvents(data))
+      .then((data: AgentEvent[]) => setEvents(data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [apiFetch]);
@@ -27,13 +27,13 @@ export default function QuoteHistoryPage() {
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Historial de Cotizaciones</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Todas las solicitudes de imagen procesadas</p>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Historial de Conversaciones</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Todos los mensajes procesados por el agente</p>
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {(["all", "whatsapp", "telegram"] as ChannelFilter[]).map((v) => (
+        {(["all", "whatsapp", "messenger"] as ChannelFilter[]).map((v) => (
           <button
             key={v}
             onClick={() => setChannel(v)}
@@ -76,15 +76,19 @@ export default function QuoteHistoryPage() {
                   <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Hora</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Canal</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Remitente</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Producto Detectado</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Conf.</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Mensaje / Producto</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Herramientas</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Cotización</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-400">Total ms</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {filtered.map((e) => {
-                  const totalMs = Object.values(e.latencies).reduce((s, v) => s + v, 0);
+                  const totalMs = (e.latencies.agent_ms ?? 0) + (e.latencies.reply_ms ?? 0);
+                  const extraction = e.extraction as Record<string, unknown>;
+                  const productName = extraction?.product_guess as string | undefined;
+                  const displayText = productName ?? (e.text ? e.text.slice(0, 60) : "—");
+
                   return (
                     <tr key={e.message_id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
                       <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
@@ -94,11 +98,49 @@ export default function QuoteHistoryPage() {
                         <ChannelBadge channel={e.channel} />
                       </td>
                       <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{e.sender}</td>
-                      <td className="px-4 py-3 text-gray-800 dark:text-white font-medium">
-                        {e.extraction.product_guess}
+                      <td className="px-4 py-3 text-gray-800 dark:text-white font-medium max-w-xs truncate">
+                        {e.media_url && <span className="mr-1 text-gray-400">📷</span>}
+                        {displayText}
+                        {typeof extraction?.confidence === "number" && (
+                          <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">
+                            {Math.round((extraction.confidence as number) * 100)}%
+                          </span>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
-                        {Math.round(e.extraction.confidence * 100)}%
+                      <td className="px-4 py-3">
+                        {(() => {
+                          const hasImg = !!e.media_url;
+                          const hasExt = !!e.extraction?.product_guess;
+                          const tc = e.tool_calls ?? [];
+                          const steps: { iconClass: string; label: string; detail?: string }[] = [
+                            { iconClass: "lni-comments", label: "Mensaje recibido" },
+                          ];
+                          if (tc.find(t => t.name === "analyze_product_image") || hasImg || hasExt) {
+                            steps.push({ iconClass: "lni-image", label: "Imagen analizada", detail: hasExt ? e.extraction?.product_guess : undefined });
+                          }
+                          if (tc.find(t => t.name === "search_catalog")) {
+                            steps.push({ iconClass: "lni-database", label: "Catálogo revisado" });
+                          }
+                          if (tc.find(t => t.name === "build_quote") || e.quote) {
+                            steps.push({ iconClass: "lni-tag", label: "Cotización lista" });
+                          }
+                          steps.push({ iconClass: "lni-checkmark-circle", label: "Respuesta enviada" });
+                          return (
+                            <div className="flex items-center gap-0.5">
+                              {steps.map((step, i) => (
+                                <span key={i} className="flex items-center gap-0.5">
+                                  <i
+                                    className={`lni ${step.iconClass} text-sm text-gray-700 dark:text-white`}
+                                    title={[step.label, step.detail].filter(Boolean).join(" — ")}
+                                  />
+                                  {i < steps.length - 1 && (
+                                    <span className="text-gray-300 dark:text-gray-600 text-xs">›</span>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3">
                         {e.quote ? (

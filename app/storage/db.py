@@ -38,6 +38,16 @@ CREATE TABLE IF NOT EXISTS events (
     payload     TEXT NOT NULL,
     created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS conversations (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel    TEXT NOT NULL,
+    sender     TEXT NOT NULL,
+    role       TEXT NOT NULL,
+    content    TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_conv_sender ON conversations(channel, sender, id);
 """
 
 
@@ -57,6 +67,33 @@ async def insert_event(payload: dict) -> None:
         await db.commit()
 
 
+async def append_turn(channel: str, sender: str, role: str, content: list) -> None:
+    import json as _json
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "INSERT INTO conversations (channel, sender, role, content) VALUES (?, ?, ?, ?)",
+            (channel, sender, role, _json.dumps(content)),
+        )
+        await db.commit()
+
+
+async def load_history(channel: str, sender: str, limit: int = 20) -> list[dict]:
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            """
+            SELECT role, content FROM (
+                SELECT role, content, id FROM conversations
+                WHERE channel = ? AND sender = ?
+                ORDER BY id DESC LIMIT ?
+            ) ORDER BY id ASC
+            """,
+            (channel, sender, limit),
+        )
+        rows = await cursor.fetchall()
+    return [{"role": r["role"], "content": json.loads(r["content"])} for r in rows]
+
+
 async def fetch_recent_events(limit: int = 50) -> list[dict]:
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
@@ -64,4 +101,4 @@ async def fetch_recent_events(limit: int = 50) -> list[dict]:
             "SELECT payload FROM events ORDER BY id DESC LIMIT ?", (limit,)
         )
         rows = await cursor.fetchall()
-    return [json.loads(r["payload"]) for r in reversed(rows)]
+    return [json.loads(r["payload"]) for r in rows]

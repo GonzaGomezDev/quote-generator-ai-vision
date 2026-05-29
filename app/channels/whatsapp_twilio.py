@@ -1,13 +1,12 @@
-"""WhatsApp via Twilio Sandbox webhook handler."""
+"""WhatsApp via Twilio webhook handler."""
 import hmac
 import hashlib
-from urllib.parse import urlencode
 
-from fastapi import APIRouter, BackgroundTasks, Form, Header, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Header, Request
 from twilio.rest import Client as TwilioClient
 
 from app.config import settings
-from app.pipeline.orchestrator import run_pipeline
+from app.agent.runner import run_agent
 
 router = APIRouter(tags=["whatsapp"])
 _twilio = TwilioClient(settings.twilio_account_sid, settings.twilio_auth_token)
@@ -19,8 +18,6 @@ def _verify_twilio_signature(
     signature: str,
     auth_token: str,
 ) -> bool:
-    """Validate Twilio's X-Twilio-Signature header."""
-    # Sort POST params and append to URL
     sorted_params = "".join(f"{k}{v}" for k, v in sorted(post_params.items()))
     s = request_url + sorted_params
     expected = hmac.new(auth_token.encode(), s.encode(), hashlib.sha1).digest()
@@ -46,18 +43,19 @@ async def whatsapp_webhook(
     form = await request.form()
     data = dict(form)
 
-    media_url: str = data.get("MediaUrl0", "")
     sender: str = data.get("From", "")
+    text: str = data.get("Body", "").strip() or None
+    media_url: str = data.get("MediaUrl0", "") or None
 
-    if not media_url:
-        # Text-only message — ignore for now
-        return {"status": "no_media"}
+    if not sender:
+        return {"status": "no_sender"}
 
     background_tasks.add_task(
-        run_pipeline,
-        image_url=media_url,
+        run_agent,
         channel="whatsapp",
         sender=sender,
+        text=text,
+        image_url=media_url,
         reply_fn=_reply,
     )
     return {"status": "queued"}

@@ -49,11 +49,11 @@ def build_quote(sku: Sku, quantity: int) -> QuoteResult:
 
 def format_quote_message(q: QuoteResult) -> str:
     lines = [
-        f"*Quote for {q.sku_name}*",
-        f"Qty: {q.quantity} × ${q.unit_price:.2f}",
+        f"*Cotización: {q.sku_name}*",
+        f"Cantidad: {q.quantity} × ${q.unit_price:.2f}",
         f"Subtotal: ${q.subtotal:.2f}",
-        f"Tax ({settings.tax_rate*100:.0f}%): ${q.tax:.2f}",
-        f"Shipping: {'FREE' if q.shipping == 0 else f'${q.shipping:.2f}'}",
+        f"Impuesto ({settings.tax_rate*100:.0f}%): ${q.tax:.2f}",
+        f"Envío: {'GRATIS' if q.shipping == 0 else f'${q.shipping:.2f}'}",
         f"*Total: ${q.total:.2f} {q.currency}*",
     ]
     return "\n".join(lines)

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-"""CLI smoke-test: extract product data from a local image file.
+"""CLI smoke-test: run the full agent pipeline against a local image file.
 
 Usage:
     python scripts/send_test_image.py path/to/image.jpg
+    python scripts/send_test_image.py path/to/image.jpg "red Nike sneaker"  # include caption
 """
 import asyncio
 import json
@@ -12,29 +13,41 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.vision.claude_client import extract_from_bytes
-from app.pipeline.catalog import find_sku, load_catalog
+from app.pipeline.catalog import find_sku, load_catalog, search_catalog
 from app.pipeline.quoting import build_quote, format_quote_message
 
 
-async def main(image_path: str) -> None:
+async def main(image_path: str, caption: str = "") -> None:
     path = Path(image_path)
     if not path.exists():
         print(f"File not found: {path}", file=sys.stderr)
         sys.exit(1)
 
+    load_catalog()
+
+    # ── Vision extraction ─────────────────────────────────────────────────────
     print(f"\n[1/3] Sending {path.name} to Claude Sonnet 4.6…")
     extraction = await extract_from_bytes(path.read_bytes(), "image/jpeg")
     print("Extraction:", json.dumps(extraction, indent=2))
 
+    # ── Catalog match ─────────────────────────────────────────────────────────
     print("\n[2/3] Matching SKU…")
-    load_catalog()
     sku = find_sku(extraction)
-    if sku:
-        print(f"Matched: {sku.id} — {sku.name} @ ${sku.unit_price}")
-    else:
-        print("No SKU matched (confidence below threshold).")
+
+    if not sku and caption:
+        print(f"  Image match failed — trying text search: '{caption}'")
+        results = search_catalog(caption, limit=3)
+        if results:
+            sku = results[0]
+            print(f"  Text search matched: {sku.id} — {sku.name}")
+
+    if not sku:
+        print("  No SKU matched (confidence below threshold).")
         return
 
+    print(f"  Matched: {sku.id} — {sku.name} @ ${sku.unit_price}")
+
+    # ── Quote ─────────────────────────────────────────────────────────────────
     print("\n[3/3] Building quote…")
     qty = extraction.get("estimated_quantity", 1)
     quote = build_quote(sku, qty)
@@ -43,6 +56,7 @@ async def main(image_path: str) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python scripts/send_test_image.py <image_path>")
+        print("Usage: python scripts/send_test_image.py <image_path> [caption]")
         sys.exit(1)
-    asyncio.run(main(sys.argv[1]))
+    caption_arg = sys.argv[2] if len(sys.argv) > 2 else ""
+    asyncio.run(main(sys.argv[1], caption_arg))

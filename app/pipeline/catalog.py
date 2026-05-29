@@ -28,6 +28,27 @@ def load_catalog() -> None:
     ]
 
 
+def get_sku_by_id(sku_id: str) -> Sku | None:
+    if not _catalog:
+        load_catalog()
+    for s in _catalog:
+        if s.id == sku_id:
+            return s
+    return None
+
+
+def search_catalog(query: str, limit: int = 5) -> list[Sku]:
+    """Return up to `limit` SKUs ranked by fuzzy similarity to query."""
+    if not _catalog:
+        load_catalog()
+    if not query.strip():
+        return []
+    results = process.extract(
+        query.lower(), _search_strings, scorer=fuzz.token_set_ratio, limit=limit
+    )
+    return [_catalog[idx] for _match, score, idx in results if score >= MATCH_THRESHOLD]
+
+
 def find_sku(extraction: dict) -> Sku | None:
     """Return the best-matching SKU or None if confidence is too low."""
     if not _catalog:

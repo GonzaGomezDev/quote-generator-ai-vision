@@ -38,12 +38,12 @@ export default function SetupPage() {
     {
       label: "WhatsApp (Twilio)",
       url: `${baseUrl}/webhook/whatsapp`,
-      description: "Pegalo en Twilio Sandbox → When a message comes in",
+      description: "Pegalo en Twilio Sandbox → Messaging → Sandbox Settings → When a message comes in",
     },
     {
-      label: "Telegram (Bot)",
-      url: `${baseUrl}/webhook/telegram`,
-      description: "Registralo con setWebhook en la API de Telegram",
+      label: "Facebook Messenger (Twilio)",
+      url: `${baseUrl}/webhook/messenger`,
+      description: "Pegalo en Twilio → Messaging → Senders → Messenger → Messaging Configuration",
     },
   ];
 
@@ -52,8 +52,7 @@ export default function SetupPage() {
     { key: "TWILIO_ACCOUNT_SID", hint: "console.twilio.com → Account Info" },
     { key: "TWILIO_AUTH_TOKEN", hint: "console.twilio.com → Account Info" },
     { key: "TWILIO_WHATSAPP_FROM", hint: "ej. whatsapp:+14155238886" },
-    { key: "TELEGRAM_BOT_TOKEN", hint: "Obtenelo con @BotFather en Telegram → /newbot" },
-    { key: "TELEGRAM_WEBHOOK_SECRET", hint: "String aleatorio para validar llamadas de Telegram" },
+    { key: "TWILIO_MESSENGER_FROM", hint: "ej. messenger:123456789012345 (ID de tu página de Facebook)" },
     { key: "OPERATOR_PASSWORD", hint: "Tu contraseña para el dashboard" },
     { key: "JWT_SECRET", hint: "String largo y aleatorio (openssl rand -hex 32)" },
   ];

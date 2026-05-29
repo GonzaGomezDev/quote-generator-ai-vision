@@ -20,23 +20,25 @@ export interface QuoteData {
   currency: string;
 }
 
-export interface Latencies {
-  vision_ms: number;
-  match_ms: number;
-  quote_ms: number;
-  reply_ms: number;
+export interface ToolCall {
+  name: string;
+  input: Record<string, unknown>;
+  result_summary: string;
 }
 
-export interface PipelineEvent {
+export interface AgentEvent {
   message_id: string;
-  channel: "whatsapp" | "telegram";
+  channel: "whatsapp" | "messenger";
   sender: string;
-  media_url: string;
-  extraction: Extraction;
+  text: string | null;
+  media_url: string | null;
+  reply_text: string;
+  extraction: Extraction | Record<string, never>;
   quote: QuoteData | null;
-  latencies: Latencies;
+  tool_calls: ToolCall[];
+  latencies: Record<string, number>;
   received_at: string;
 }
 
-export type ChannelFilter = "all" | "whatsapp" | "telegram";
+export type ChannelFilter = "all" | "whatsapp" | "messenger";
 export type MatchFilter = "all" | "matched" | "unmatched";
