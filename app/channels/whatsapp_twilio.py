@@ -11,21 +11,6 @@ from app.agent.runner import run_agent
 router = APIRouter(tags=["whatsapp"])
 _twilio = TwilioClient(settings.twilio_account_sid, settings.twilio_auth_token)
 
-
-def _verify_twilio_signature(
-    request_url: str,
-    post_params: dict,
-    signature: str,
-    auth_token: str,
-) -> bool:
-    sorted_params = "".join(f"{k}{v}" for k, v in sorted(post_params.items()))
-    s = request_url + sorted_params
-    expected = hmac.new(auth_token.encode(), s.encode(), hashlib.sha1).digest()
-    import base64
-    expected_b64 = base64.b64encode(expected).decode()
-    return hmac.compare_digest(expected_b64, signature)
-
-
 async def _reply(sender: str, text: str) -> None:
     _twilio.messages.create(
         from_=settings.twilio_whatsapp_from,
@@ -38,7 +23,6 @@ async def _reply(sender: str, text: str) -> None:
 async def whatsapp_webhook(
     request: Request,
     background_tasks: BackgroundTasks,
-    x_twilio_signature: str = Header(default=""),
 ):
     form = await request.form()
     data = dict(form)
