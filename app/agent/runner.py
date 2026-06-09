@@ -165,9 +165,9 @@ async def run_agent(
     await reply_fn(sender, reply_text)
     latencies["reply_ms"] = int((time.monotonic() - t_reply) * 1000)
 
-    # ── Persist conversation turns ────────────────────────────────────────────
-    await append_turn(channel, sender, "user", _serialise_blocks(content_blocks))
-    await append_turn(channel, sender, "assistant", [{"type": "text", "text": reply_text}])
+    # ── Persist conversation turns (full exchange incl. tool calls/results) ──
+    for turn in messages[len(history):]:
+        await append_turn(channel, sender, turn["role"], _serialise_blocks(turn["content"]))
 
     # ── Build and broadcast SSE event ─────────────────────────────────────────
     event = AgentEvent(
@@ -208,12 +208,16 @@ def _summarise(tool_name: str, result: dict) -> str:
 
 
 def _serialise_blocks(blocks: list) -> list[dict]:
-    """Strip base64 image data before storing to conversations table.
-    Images are replaced with a text placeholder so reloaded history stays valid
-    for the Anthropic API (which rejects unknown content block types).
+    """Convert content blocks to plain dicts for DB storage.
+    - SDK Pydantic objects (ToolUseBlock, TextBlock) are converted via model_dump().
+    - Image blocks are replaced with a text placeholder (strips base64).
+    - tool_result and tool_use dicts pass through unchanged so history reloads
+      correctly and the Anthropic API can match tool_use/tool_result pairs.
     """
     out = []
     for b in blocks:
+        if hasattr(b, "model_dump"):
+            b = b.model_dump(exclude_none=True)
         if isinstance(b, dict):
             if b.get("type") == "image":
                 out.append({"type": "text", "text": "[el cliente envió una imagen]"})

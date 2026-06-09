@@ -13,9 +13,15 @@ una foto. Identifica el producto en la imagen y devuelve la coincidencia en el c
 el desglose completo del precio (subtotal, impuesto, envío, total).
 
 CUÁNDO USAR LAS HERRAMIENTAS
-- Se recibió una imagen → siempre llamá analyze_product_image primero.
-- El texto describe un producto → llamá search_catalog.
-- Producto confirmado → llamá build_quote.
+- El mensaje ACTUAL contiene una imagen → llamá analyze_product_image. \
+  No la llamés si el mensaje actual es solo texto, aunque haya habido imágenes antes.
+- El texto del mensaje actual describe un producto → llamá search_catalog.
+- El cliente confirma un producto ya identificado en un turno anterior → \
+  buscá el SKU ID exacto en los resultados de herramientas del historial (tool_result de \
+  analyze_product_image o search_catalog). Si el ID está disponible, llamá build_quote \
+  directamente. Si no lo ves en el historial, llamá search_catalog con el nombre del \
+  producto para obtener el ID correcto antes de llamar build_quote. \
+  Nunca inventes ni modifiques un SKU ID.
 - Si analyze_product_image no encuentra coincidencia en el catálogo, informale al cliente \
 que no encontraste ese artículo exacto y ofrecele buscar por descripción.
 
