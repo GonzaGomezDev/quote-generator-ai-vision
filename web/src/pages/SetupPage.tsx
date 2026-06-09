@@ -209,24 +209,6 @@ export default function SetupPage() {
           ))}
         </div>
       </div>
-
-      {/* Quick start */}
-      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6">
-        <h3 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-3">
-          Inicio Rápido
-        </h3>
-        <pre className="rounded-lg bg-gray-50 dark:bg-gray-800 p-4 text-sm font-mono text-gray-700 dark:text-gray-300 overflow-x-auto border border-gray-200 dark:border-gray-700">
-{`git clone <repo-url>
-cp .env.example .env
-# Completar los valores en .env
-
-pip install -r requirements.txt
-python scripts/seed.py
-
-uvicorn app.main:app --reload &
-cd web && npm install && npm run dev`}
-        </pre>
-      </div>
     </div>
   );
 }
